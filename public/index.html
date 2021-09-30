@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="assets/images/icon-m-m.svg">
+    <title>Musicians Memorial</title>
+    <style>
+        body {
+            padding: 0;
+            margin: 0;
+            background-color: #0a0a0a;
+        }
+
+        button {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 80px;
+            height: 80px;
+            border-radius: 100%;
+            background-color: #ff1155;
+            border: none;
+            position: fixed;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            margin: auto;
+            cursor: pointer;
+            opacity: 0.2;
+        }
+
+        button:hover {
+            opacity: 1;
+        }
+    </style>
+</head>
+
+<body>
+    <div style="display: flex;position: fixed;padding: 10px;z-index: 2;" id="links">
+        <a href="0"><img src="assets/images/github.svg" width="30" height="30"></a>
+        <a href="1"><img src="assets/images/at-solid.svg" width="30" height="30"></a>
+        <!-- <a href="2"><img src="assets/images/paypal.svg" width="30" height="30"></a> -->
+    </div>
+
+    <button id="btn-play-stop" style="display: none;">
+        <img src="assets/images/play-solid.svg" width="50" height="50" id="img-play-stop">
+    </button>
+</body>
+
+<script src="/libs/p5.js"></script>
+<script>
+
+    let isPlaying = false;
+
+    document.getElementById('btn-play-stop').addEventListener('click', () => {
+        if (!isPlaying) {
+            document.getElementById('img-play-stop').src = 'assets/images/stop-solid.svg';
+        } else {
+            document.getElementById('img-play-stop').src = 'assets/images/play-solid.svg';
+        }
+        isPlaying = !isPlaying;
+    });
+
+    const ms = [
+        { id: 0, name: 'Kurt Cobain', related: [] },
+        { id: 1, name: '2Pac Shakur', related: [] },
+        { id: 2, name: 'XXXTantation', related: [] },
+        { id: 3, name: 'John Lenon', related: [5] },
+        { id: 4, name: 'Syd Barret', related: [10] },
+        { id: 5, name: 'George Harrison', related: [3] },
+        { id: 6, name: 'Pop Smoke', related: [] },
+        { id: 7, name: 'Jimi Hendrix', related: [] },
+        { id: 8, name: 'Michael Jackson', related: [] },
+        { id: 9, name: 'Freddie Mercury', related: [] },
+        { id: 10, name: 'Richard Wright', related: [4] },
+        { id: 11, name: 'brian Jones', related: [] },
+        { id: 12, name: 'Janis Joplin', related: [] },
+        { id: 13, name: 'Jim Morrison', related: [] },
+        { id: 14, name: 'Amy Winehouse', related: [] },
+        { id: 15, name: 'Marie Fredriksson', related: [] },
+        { id: 16, name: 'Witney Houston', related: [] },
+        { id: 17, name: 'Mick Jones', related: [18, 19] },
+        { id: 18, name: 'Paul Simonon', related: [17, 19] },
+        { id: 19, name: 'Joe Strummer', related: [17, 18] }
+    ];
+
+    let musicians = [];
+    let stars = [];
+
+    let clave;
+    function preload() {
+        clave = loadImage('assets/images/logo-full-m-m.svg');
+    }
+
+    function setup() {
+        createCanvas(screen.width, innerHeight - 4);
+        ms.forEach(m => {
+            musicians.push(new Musician(m.id, m.name));
+        });
+
+        for (let i = 0; i < 20; i++) {
+            stars.push({ x: random(width), y: random(height), r: 5 });
+        }
+    }
+
+    function draw() {
+        background(20);
+        // imageMode(CENTER);
+        // image(clave, width * 0.5, height * 0.5);
+        stars.forEach(star => {
+            push();
+            fill('#ff1155');
+            ellipse(star.x, star.y, star.r, star.r);
+            star.y += random(0.1, 1);
+            if (star.y > height) {
+                star.y = random(-100, 0);
+            }
+            pop();
+        });
+
+        musicians.forEach(musitian => {
+            musitian.show();
+        });
+    }
+
+    class Musician {
+        constructor(id, name) {
+            this.id = id;
+            this.name = name;
+            this.pos = new p5.Vector(random(width, random(height, 2 * height)));
+            this.velocity = new p5.Vector(0, random(-2, -1));
+        }
+
+        show() {
+            const dim = map(this.pos.y, height, 0, 40, 10);
+
+            push();
+            fill('#ff1155');
+            ellipse(this.pos.x, this.pos.y, dim, dim);
+            text(this.name, this.pos.x, this.pos.y - 10);
+            pop();
+            ms.forEach(m => {
+                if (m.id !== this.id && m.related.includes(this.id)) {
+                    stroke('#111');
+                    line(this.pos.x, this.pos.y, musicians[m.id].pos.x, musicians[m.id].pos.y);
+                }
+            });
+            this.animate();
+        }
+
+        animate() {
+            this.pos.add(this.velocity);
+            if (this.pos.y < 0) {
+                this.pos.y = random(height, 2 * height);
+                this.pos.x = random(width);
+                this.velocity = new p5.Vector(0, random(-2, -1));
+            }
+        }
+    }
+</script>
+
+</html>
